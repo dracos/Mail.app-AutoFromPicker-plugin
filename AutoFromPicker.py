@@ -24,6 +24,7 @@ import objc
 import PyObjCTools.AppHelper
 
 from config import *
+from util import swizzle
 
 ModuleBundle = objc.currentBundle()    
 MVMailBundle = objc.lookUpClass('MVMailBundle')
@@ -36,20 +37,6 @@ class AutoFromPicker(MVMailBundle):
     def initialize(cls):
         cls.registerBundle()
         NSLog(u"AutoFromPicker plugin registered with Mail")
-
-# This is a helper function that swaps an internal Mail function with a
-# function in this file. Called as a decorator on the new function you want to
-# use instead, which will be passed the original function as its first argument
-def swizzle(*args):
-    cls, SEL = args
-    def decorator(func):
-        oldIMP      = cls.instanceMethodForSelector_(SEL)
-        def wrapper(self, *args, **kwargs):
-            return func(self, oldIMP, *args, **kwargs)
-        newMethod   = objc.selector(wrapper, selector = oldIMP.selector, signature = oldIMP.signature)
-        objc.classAddMethod(cls, SEL, newMethod)
-        return wrapper
-    return decorator
 
 # This sets the sender for the message to the address provided. It should also
 # update the visible look, but this doesn't always work in Lion.
@@ -77,7 +64,7 @@ class MailDocumentEditor(objc.Category(MailDocumentEditor)):
                 #NSLog('%s %s' % (from_line, to))
                 for account, strings in ACCOUNTS.items():
                     for string in strings:
-                         if string.lower() in to.lower() and from_line.lower() != account.lower():
+                        if string.lower() in to.lower() and from_line.lower() != account.lower():
                             if alert:
                                 self.fromAlertSheet()
                                 return False
@@ -99,7 +86,7 @@ class MailDocumentEditor(objc.Category(MailDocumentEditor)):
     # What to do when one of the dialogue box buttons are clicked
     def fromAlertSheetDidEnd(self, panel, returnCode, contextInfo):
         if returnCode == NSAlertFirstButtonReturn:
-            self.send_(contextInfo)
+            self.AFPsend_(contextInfo)
         else:
             NSLog('User cancelled sending message.')
     fromAlertSheetDidEnd = PyObjCTools.AppHelper.endSheetMethod(fromAlertSheetDidEnd)
@@ -107,19 +94,19 @@ class MailDocumentEditor(objc.Category(MailDocumentEditor)):
 # If desired, replace the function that runs when you hit Reply with one that
 # checks the To: list and then calls the original function
 if SET_ON_REPLY:
-    @swizzle(MailDocumentEditor, 'finishLoadingEditor')
-    def finishLoadingEditor(self, original):
+    @swizzle(MailDocumentEditor.finishLoadingEditor)
+    def AFPfinishLoadingEditor(self):
         NSLog('[AFP] finishLoadingEditor')
         self.checkRecipients()
-        original(self)
+        self.AFPfinishLoadingEditor()
 
 # If desired, replace the function that runs when you change the recipients to one that
 # calls the original function, then checks the To: list to possibly update sender
 if SET_ON_RECIPIENT_UPDATE:
-    @swizzle(HeadersEditor, 'recipientsDidChange:')
-    def recipientsDidChange(self, original, sender):
+    @swizzle(HeadersEditor.recipientsDidChange_)
+    def AFPrecipientsDidChange_(self, sender):
         NSLog('[AFP] recipientsDidChange')
-        original(self, sender)
+        self.AFPrecipientsDidChange_(sender)
         try:
             objc.getInstanceVariable(self, '_documentEditor').checkRecipients()
         except:
@@ -129,9 +116,9 @@ if SET_ON_RECIPIENT_UPDATE:
 # checks the recipients, possibly shows a dialogue box, or otherwise just
 # sends.
 if ALERT_ON_SEND:
-    @swizzle(MailDocumentEditor, 'send:')
-    def send(self, original, sender):
+    @swizzle(MailDocumentEditor.send_)
+    def AFPsend_(self, sender):
         NSLog('[AFP] send:')
         if self.checkRecipients(True):
-            original(self, sender)
+            self.AFPsend_(sender)
 
