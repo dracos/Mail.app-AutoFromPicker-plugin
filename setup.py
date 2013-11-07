@@ -19,13 +19,15 @@
 from distutils.core import setup
 import py2app
 
+import platform
+
 # If running gives a 'disabled plugin' error, then I missed out some Mail version UUIDs from the list; you have to provide for every version of Mail you want your plugin to run under. Find yours by running:
 #   "defaults read /System/Library/Frameworks/Message.framework/Resources/Info PluginCompatibilityUUID"
 #   "defaults read /Applications/Mail.app/Contents/Info PluginCompatibilityUUID"
 #    and adding those two strings to the list below
 
-VERSION='0.3'
-COPYRIGHT='Copyright 2012, Matthew Somerville'
+VERSION='0.4'
+COPYRIGHT='Copyright 2013, Matthew Somerville'
 
 plist = dict(NSPrincipalClass='AutoFromPicker',
              CFBundleGetInfoString=\
@@ -55,11 +57,21 @@ plist = dict(NSPrincipalClass='AutoFromPicker',
                                                 '758F235A-2FD0-4660-9B52-102CD0EA897F', # Mail 5.3 (10.7.5)
                                                 '1146A009-E373-4DB6-AB4D-47E59A7E50FD', # Messages 6.0 ( 10.8.0 )
                                                 '608CE00F-4576-4CAD-B362-F3CCB7DE8D67', # Mail 6.0 ( 10.8.0 )
+                                                '2183B2CD-BEDF-4AA6-AC18-A1BBED2E3354', # Messages 6.? ( 10.8.4 )
+                                                '19B53E95-0964-4AAB-88F9-6D2F8B7B6037', # Mail 6.? ( 10.8.4 )
+                                                '0941BB9F-231F-452D-A26F-47A43863C991', # Mail 7.0 ( 10.9.0 )
+                                                '3335F782-01E2-4DF1-9E61-F81314124212', # MessageCompatibilityUUID
                                                ]
 
         )
 
+OS_VERSION = platform.mac_ver()[0]
+
+if OS_VERSION >= '10.9':
+    plugin = ['AutoFromPicker-10.9.py']
+else:
+    plugin = ['AutoFromPicker.py']
 setup(
-    plugin = ['AutoFromPicker.py'],
+    plugin = plugin,
     options = dict(py2app=dict(extension='.mailbundle', plist=plist))
  )  

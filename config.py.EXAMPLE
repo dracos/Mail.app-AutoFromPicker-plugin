@@ -21,9 +21,6 @@
 # When you hit reply, should it change the account
 SET_ON_REPLY = True
 
-# When you change To/CC/etc when writing a reply, should it change the account (no visible notification in Lion BUG)
-SET_ON_RECIPIENT_UPDATE = True
-
 # When you click send, should it check and pop up a modal dialogue box
 ALERT_ON_SEND = True
 

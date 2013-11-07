@@ -27,7 +27,7 @@ from config import *
 
 ModuleBundle = objc.currentBundle()    
 MVMailBundle = objc.lookUpClass('MVMailBundle')
-MailDocumentEditor = objc.lookUpClass('MailDocumentEditor')
+DocumentEditor = objc.lookUpClass('DocumentEditor')
 
 # Register this module
 class AutoFromPicker(MVMailBundle):
@@ -60,7 +60,7 @@ def updateSenderAndNotify(backend, to):
     except:
         pass
 
-class MailDocumentEditor(objc.Category(MailDocumentEditor)):
+class DocumentEditor(objc.Category(DocumentEditor)):
     # Main checking function, called in the three cases. Checks To against provided data,
     # and alerts or changes account.
     def checkRecipients(self, alert=False):
@@ -106,7 +106,7 @@ class MailDocumentEditor(objc.Category(MailDocumentEditor)):
 # If desired, replace the function that runs when you hit Reply with one that
 # checks the To: list and then calls the original function
 if SET_ON_REPLY:
-    @swizzle(MailDocumentEditor, 'finishLoadingEditor')
+    @swizzle(DocumentEditor, 'finishLoadingEditor')
     def finishLoadingEditor(self, original):
         NSLog('[AFP] finishLoadingEditor')
         self.checkRecipients()
@@ -116,7 +116,7 @@ if SET_ON_REPLY:
 # checks the recipients, possibly shows a dialogue box, or otherwise just
 # sends.
 if ALERT_ON_SEND:
-    @swizzle(MailDocumentEditor, 'send:')
+    @swizzle(DocumentEditor, 'send:')
     def send(self, original, sender):
         NSLog('[AFP] send:')
         if self.checkRecipients(True):
