@@ -21,10 +21,15 @@ import py2app
 
 import platform
 
-# If running gives a 'disabled plugin' error, then I missed out some Mail version UUIDs from the list; you have to provide for every version of Mail you want your plugin to run under. Find yours by running:
-#   "defaults read /System/Library/Frameworks/Message.framework/Resources/Info PluginCompatibilityUUID"
-#   "defaults read /Applications/Mail.app/Contents/Info PluginCompatibilityUUID"
-#    and adding those two strings to the list below
+# If running gives a 'disabled plugin' error, then I missed out some Mail
+# version UUIDs from the list; you have to provide for every version of Mail
+# you want your plugin to run under. Find yours by running, before 10.9:
+#   defaults read /System/Library/Frameworks/Message.framework/Resources/Info PluginCompatibilityUUID
+#   defaults read /Applications/Mail.app/Contents/Info PluginCompatibilityUUID
+# OR in 10.9:
+#   defaults find UUID | grep MailCompatibility
+#   defaults find UUID | grep MessageCompatibility
+# and adding those two strings to the list below.
 
 VERSION='0.4'
 COPYRIGHT='Copyright 2013, Matthew Somerville'
@@ -61,6 +66,8 @@ plist = dict(NSPrincipalClass='AutoFromPicker',
                                                 '19B53E95-0964-4AAB-88F9-6D2F8B7B6037', # Mail 6.? ( 10.8.4 )
                                                 '0941BB9F-231F-452D-A26F-47A43863C991', # Mail 7.0 ( 10.9.0 )
                                                 '3335F782-01E2-4DF1-9E61-F81314124212', # MessageCompatibilityUUID
+                                                'FBE5B158-5602-4A6D-9CC5-8461B9B7054E', # Mail 7.0 (1822)
+
                                                ]
 
         )
