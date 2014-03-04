@@ -67,6 +67,7 @@ plist = dict(NSPrincipalClass='AutoFromPicker',
                                                 '0941BB9F-231F-452D-A26F-47A43863C991', # Mail 7.0 ( 10.9.0 )
                                                 'FBE5B158-5602-4A6D-9CC5-8461B9B7054E', # Mail 7.0 (1822)
                                                 '1CD40D64-945D-4D50-B12D-9CD865533506', # Mail 7.1 (1827)
+                                                '88ED2D4C-D384-4BF5-8E94-B533455E6AAF', # Mail 7.2 (1874)
 
                                                ]
 
